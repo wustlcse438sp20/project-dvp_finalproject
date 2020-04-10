@@ -1,6 +1,7 @@
 package com.example.a438finalproject
 
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -75,6 +76,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //set the user location
         enableMyLocation()
 
+        //set the click longitude
+        setMapLongClick(mMap)
+
         //add zoom controls
         val mapSettings = mMap.uiSettings
         mapSettings.isZoomControlsEnabled = true
@@ -104,6 +108,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         autoCompleteFragment?.setOnPlaceSelectedListener(object : PlaceSelectionListener{
             override fun onPlaceSelected(place: Place) {
                 Toast.makeText(applicationContext, ""+place.address, Toast.LENGTH_SHORT).show()
+
+                //set the location and zoom variables
+                val geocoder = Geocoder(applicationContext)
+                val address = place.address
+                val geoad = geocoder.getFromLocationName(address as String,1)
+                println("geoad: $geoad")
+                val placelat = geoad[0].latitude
+                val placelng = geoad[0].longitude
+                println(placelat)
+
+
+                val placelatlng = LatLng(placelat, placelng)
+
+                println("Place latllng: $placelatlng")
+                println("Place address: ${place.address}")
+                val zoomLevel = 15f
+
+                //move the camera and set a marker
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placelatlng, zoomLevel))
+                mMap.addMarker(MarkerOptions().position(placelatlng).title(place.name))
 
             }
 

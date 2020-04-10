@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        db = FirebaseFirestore.getInstance()
+//        db = FirebaseFirestore.getInstance()
 
         //test
 //        val city : HashMap<String, Any> = hashMapOf(
