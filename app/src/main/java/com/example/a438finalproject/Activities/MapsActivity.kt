@@ -1,14 +1,16 @@
-package com.example.a438finalproject
+package com.example.a438finalproject.Activities
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.a438finalproject.R
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -21,17 +23,16 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.RectangularBounds
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteFragment
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.firebase.auth.FirebaseAuth
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private lateinit var firebase: FirebaseAuth
 
     private lateinit var mMap: GoogleMap
 
@@ -58,6 +59,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Places.initialize(applicationContext, "@string/google_maps_key")
 
         setupPlacesAutoComplete()
+
+        firebase = FirebaseAuth.getInstance()
 
     }
 
@@ -202,5 +205,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         private const val PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 100
+    }
+
+    fun logout(view: View) {
+        val homeIntent = Intent(this, MainActivity::class.java)
+        //still needs to logout user and toast to let them know
+        firebase.signOut()
+        startActivity(homeIntent)
+    }
+    fun favorites(view: View) {
+        val Intent = Intent(this, Favorites::class.java)
+        startActivity(Intent)
+    }
+
+    fun addFavorites(view: View) {
     }
 }
