@@ -10,7 +10,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.a438finalproject.Data.LocationData
+import com.example.a438finalproject.Network.ApiClient
 import com.example.a438finalproject.R
+import com.example.a438finalproject.Util.LocationHelper
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -29,6 +32,11 @@ import com.google.android.libraries.places.widget.AutocompleteFragment
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -45,6 +53,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var placesClient: PlacesClient
 
+    val service = ApiClient.makeRetroFitService()
+    var locationData : LocationData? = LocationData(listOf(), listOf(), listOf())
+    val locationHelper = LocationHelper()
+    val filter = HashMap<String, String>()
+    var testLatitude = "38.6488"
+    var testLongitude = "-90.3108"
+    var limit = 10
+    var cleanedData : LocationData? = LocationData(listOf(), listOf(), listOf())
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +77,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setupPlacesAutoComplete()
 
         firebase = FirebaseAuth.getInstance()
+    }
 
+    override fun onStart() {
+        super.onStart()
+        searchLocation(testLatitude, testLongitude)
+    }
+
+    fun searchLocation(latitude : String, longitude : String) {
+
+        filter["latitude"] = latitude
+        filter["longitude"] = longitude
+        var paramLimit = limit.toString()
+
+        print("breakpoint")
+        getLocationByPoint(filter, paramLimit)
+    }
+
+    fun getLocationByPoint(filter: HashMap<String,String>, limit : String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = service.getLocByPoint(filter, limit)
+
+            withContext(Dispatchers.Main) {
+                try {
+                    if (response.isSuccessful) {
+                        print(response.body())
+                        print("successful response")
+                        locationData = response.body()
+                        print("breakpoint")
+                        cleanedData = locationHelper.garbageCleanup(locationData)
+                        print("breakpoint")
+                    }
+                } catch (e: HttpException) {
+                    println("Http error")
+                }
+            }
+        }
     }
 
     /**
