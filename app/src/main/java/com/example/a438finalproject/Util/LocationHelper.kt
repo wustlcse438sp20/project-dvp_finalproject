@@ -1,6 +1,7 @@
 package com.example.a438finalproject.Util
 
 import com.example.a438finalproject.Data.LocationData
+import com.google.android.gms.maps.model.LatLng
 
 class LocationHelper {
 
@@ -10,15 +11,37 @@ class LocationHelper {
         val cleanedOffStreetParkedge = locationData!!.off_street_parkedge.filter { !it.name.isNullOrEmpty() }
 
         val filteredLocData : LocationData? = LocationData(cleanedOnStreets, cleanedOffStreets, cleanedOffStreetParkedge)
-        print("breakpoint")
+
         return filteredLocData
     }
 
-    fun getCoordinates(locationData: LocationData?) {
+    fun getCoordinates(locationData: LocationData?): MutableList<Pair<LatLng,String>> {
+        val list : MutableList<Pair<LatLng,String>> = mutableListOf()
         for (onStreet in locationData!!.on_street) {
-            var longitude = onStreet.geojson_center.coordinates[0]
-            var latitude = onStreet.geojson_center.coordinates[1]
-            //display data (longitude, latitude, onStreet)
+            val longitude = onStreet.geojson_center.coordinates[0]
+            val latitude = onStreet.geojson_center.coordinates[1]
+            val latlng = LatLng(latitude,longitude)
+            val title = onStreet.name
+            val pair = Pair(latlng,title)
+            list.add(pair)
         }
+        for (offStreet in locationData!!.off_street) {
+            val longitude = offStreet.geojson_center.coordinates[0]
+            val latitude = offStreet.geojson_center.coordinates[1]
+            val latlng = LatLng(latitude,longitude)
+            val title = offStreet.name
+            val pair = Pair(latlng,title)
+            list.add(pair)
+        }
+        for (parkedge in locationData!!.off_street_parkedge) {
+            val longitude = parkedge.geojson_center.coordinates[0]
+            val latitude = parkedge.geojson_center.coordinates[1]
+            val latlng = LatLng(latitude,longitude)
+            val title = parkedge.name
+            val pair = Pair(latlng,title)
+            list.add(pair)
+        }
+        return list
     }
+
 }

@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.a438finalproject.Data.GeojsonCenter
 import com.example.a438finalproject.Data.LocationData
 import com.example.a438finalproject.Network.ApiClient
 import com.example.a438finalproject.R
@@ -63,6 +64,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     var cleanedData : LocationData? = LocationData(listOf(), listOf(), listOf())
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -79,47 +81,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         firebase = FirebaseAuth.getInstance()
     }
 
-    override fun onStart() {
-        super.onStart()
-        searchLocation(testLatitude, testLongitude)
-    }
-
-    fun searchLocation(latitude : String, longitude : String) {
-
-        filter["latitude"] = latitude
-        filter["longitude"] = longitude
-        var paramLimit = limit.toString()
-
-        print("breakpoint")
-        getLocationByPoint(filter, paramLimit)
-    }
-
-    fun getLocationByPoint(filter: HashMap<String,String>, limit : String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val response = service.getLocByPoint(filter, limit)
-
-            withContext(Dispatchers.Main) {
-                try {
-                    if (response.isSuccessful) {
-                        print(response.body())
-                        print("successful response")
-                        locationData = response.body()
-                        print("breakpoint")
-                        cleanedData = locationHelper.garbageCleanup(locationData)
-                        print("breakpoint")
-                    }
-                } catch (e: HttpException) {
-                    println("Http error")
-                }
-            }
-        }
-    }
 
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * we just add a marker near WashU.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -142,20 +109,61 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //set as street map
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-33.8568, 151.2153)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Sydney Opera House"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15f))
+        // Add a marker in St. Louis and move the camera
+        val washU = LatLng(38.6488,-90.3108)
+        mMap.addMarker(MarkerOptions().position(washU).title("Washington University in St. Louis"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(washU,15f))
+
+        searchLocation(testLatitude, testLongitude)
+    }
+
+    fun searchLocation(latitude : String, longitude : String) {
+
+        filter["latitude"] = latitude
+        filter["longitude"] = longitude
+        val paramLimit = limit.toString()
+
+        getLocationByPoint(filter, paramLimit)
+    }
+
+    fun getLocationByPoint(filter: HashMap<String,String>, limit : String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = service.getLocByPoint(filter, limit)
+
+            withContext(Dispatchers.Main) {
+                try {
+                    if (response.isSuccessful) {
+                        println("response.body: " + response.body())
+                        locationData = response.body()
+
+                        cleanedData = locationHelper.garbageCleanup(locationData)
+                        println("cleanedData: $cleanedData")
+
+                        val coordList = locationHelper.getCoordinates(cleanedData)
+                        println("coordList: $coordList")
+
+                        for (pairs in coordList){
+                            val pos = pairs.first
+                            val name = pairs.second
+                            mMap.addMarker(MarkerOptions().position(pos).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title(name))
+                        }
+
+                    }
+                } catch (e: HttpException) {
+                    println("Http error")
+                }
+            }
+        }
     }
 
     private fun setupPlacesAutoComplete(){
 
-        var placeFields = mutableListOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS)
+        val placeFields = mutableListOf(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS)
         Places.initialize(applicationContext, getString(R.string.google_api_key))
         placesClient = Places.createClient(applicationContext)
 
         val autoCompleteFragment =
-            this?.supportFragmentManager?.findFragmentById(R.id.place_autocomplete) as? AutocompleteSupportFragment
+            this.supportFragmentManager.findFragmentById(R.id.place_autocomplete) as? AutocompleteSupportFragment
 
         autoCompleteFragment?.setPlaceFields(placeFields)
 
@@ -180,8 +188,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 val zoomLevel = 15f
 
                 //move the camera and set a marker
+                mMap.clear()
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placelatlng, zoomLevel))
                 mMap.addMarker(MarkerOptions().position(placelatlng).title(place.name))
+
+                searchLocation(placelat.toString(), placelng.toString())
 
             }
 
@@ -224,7 +235,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         else {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf<String>(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
         }
