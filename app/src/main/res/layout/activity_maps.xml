@@ -28,19 +28,43 @@
     </RelativeLayout>
 
 
-
     <fragment
         android:id="@+id/place_autocomplete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
         />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Number of Parking Locations: "
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="35dp"
+            android:id="@+id/spinnerText">
+
+        </TextView>
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="150dp"
+            android:layout_height="39dp"
+            android:visibility="visible"
+            android:layout_alignParentRight="true"
+
+            />
+
+
+    </RelativeLayout>
 
     <fragment
         android:id="@+id/map"
         class="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="450dp"/>
+        android:layout_height="400dp"/>
 
     <Button
         android:id="@+id/addToFavorites"

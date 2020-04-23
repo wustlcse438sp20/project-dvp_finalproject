@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -38,6 +39,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,8 +68,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     val filter = HashMap<String, String>()
     var testLatitude = "34.051326"
     var testLongitude = "-118.241043"
-    var limit = 10
     var cleanedData: LocationData? = LocationData(listOf(), listOf(), listOf())
+
+    val limits: ArrayList<String> = ArrayList()
+
+    init {
+        limits.add("10")
+        limits.add("25")
+        limits.add("50")
+    }
 
     var currentAddress: String? = null
     var currentLong: Double? = null
@@ -94,6 +103,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         firebase = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+
+        var arrayAdapter =
+            ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, limits)
+        spinner.adapter = arrayAdapter
     }
 
 
@@ -135,7 +148,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         filter["latitude"] = latitude
         filter["longitude"] = longitude
-        val paramLimit = limit.toString()
+        val paramLimit = spinner.selectedItem.toString()
 
         getLocationByPoint(filter, paramLimit)
     }
