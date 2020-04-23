@@ -64,8 +64,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     var locationData: LocationData? = LocationData(listOf(), listOf(), listOf())
     val locationHelper = LocationHelper()
     val filter = HashMap<String, String>()
-    var testLatitude = "38.6488"
-    var testLongitude = "-90.3108"
+    var testLatitude = "34.051326"
+    var testLongitude = "-118.241043"
     var limit = 10
     var cleanedData: LocationData? = LocationData(listOf(), listOf(), listOf())
 
@@ -113,7 +113,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         enableMyLocation()
 
         //set the click longitude
-        setMapLongClick(mMap)
+//        setMapLongClick(mMap)
 
         //add zoom controls
         val mapSettings = mMap.uiSettings
@@ -123,12 +123,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //set as street map
         mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
-        // Add a marker in St. Louis and move the camera
-        val washU = LatLng(38.6488, -90.3108)
-        mMap.addMarker(MarkerOptions().position(washU).title("Washington University in St. Louis"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(washU, 15f))
-
+        // Add a marker at start location and move the camera
+        val start = LatLng(34.051326, -118.2415)
         searchLocation(testLatitude, testLongitude)
+        mMap.addMarker(MarkerOptions().position(start).title("Home"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 17f))
+
     }
 
     fun searchLocation(latitude: String, longitude: String) {
@@ -156,13 +156,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         val coordList = locationHelper.getCoordinates(cleanedData)
                         println("coordList: $coordList")
 
-                        for (pairs in coordList) {
-                            val pos = pairs.first
-                            val name = pairs.second
+                        for (info in coordList) {
+                            val pos = info.first
+                            val name = info.second
+                            var price = info.third
+                            if(price == null){
+                                price = "No Data"
+                            }
+                            if(price != "No Data"){
+                                val f = price.first()
+                                println("f: $f")
+                                val p = "$$f.00"
+                                println("p: $p")
+                                price = p
+                            }
                             mMap.addMarker(
                                 MarkerOptions().position(pos).icon(
                                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-                                ).title(name)
+                                ).title(name).snippet("Minimum hourly price: $price")
                             )
                         }
 
@@ -263,16 +274,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    //click listener for additional locations
-    private fun setMapLongClick(map: GoogleMap) {
-        map.setOnMapLongClickListener { latLng ->
-            map.addMarker(
-                MarkerOptions()
-                    .position(latLng)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-            )
-        }
-    }
+//    //click listener for additional locations
+////    private fun setMapLongClick(map: GoogleMap) {
+////        map.setOnMapLongClickListener { latLng ->
+////            map.addMarker(
+////                MarkerOptions()
+////                    .position(latLng)
+////                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+////            )
+////        }
+////    }
 
     //check the permissions
     override fun onRequestPermissionsResult(

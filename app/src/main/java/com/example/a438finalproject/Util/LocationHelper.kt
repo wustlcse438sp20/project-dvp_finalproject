@@ -15,31 +15,34 @@ class LocationHelper {
         return filteredLocData
     }
 
-    fun getCoordinates(locationData: LocationData?): MutableList<Pair<LatLng,String>> {
-        val list : MutableList<Pair<LatLng,String>> = mutableListOf()
+    fun getCoordinates(locationData: LocationData?): MutableList<Triple<LatLng,String,String>> {
+        val list : MutableList<Triple<LatLng,String,String>> = mutableListOf()
         for (onStreet in locationData!!.on_street) {
             val longitude = onStreet.geojson_center.coordinates[0]
             val latitude = onStreet.geojson_center.coordinates[1]
             val latlng = LatLng(latitude,longitude)
             val title = onStreet.name
-            val pair = Pair(latlng,title)
-            list.add(pair)
+            val price = onStreet.min_hourly_rate
+            val info = Triple(latlng,title,price)
+            list.add(info)
         }
         for (offStreet in locationData!!.off_street) {
             val longitude = offStreet.geojson_center.coordinates[0]
             val latitude = offStreet.geojson_center.coordinates[1]
             val latlng = LatLng(latitude,longitude)
             val title = offStreet.name
-            val pair = Pair(latlng,title)
-            list.add(pair)
+            val price = offStreet.min_hourly_rate
+            val info = Triple(latlng,title,price)
+            list.add(info)
         }
-        for (parkedge in locationData!!.off_street_parkedge) {
-            val longitude = parkedge.geojson_center.coordinates[0]
-            val latitude = parkedge.geojson_center.coordinates[1]
+        for (edge in locationData!!.off_street_parkedge) {
+            val longitude = edge.geojson_center.coordinates[0]
+            val latitude = edge.geojson_center.coordinates[1]
             val latlng = LatLng(latitude,longitude)
-            val title = parkedge.name
-            val pair = Pair(latlng,title)
-            list.add(pair)
+            val title = edge.name
+            val price = "No Data"
+            val info = Triple(latlng,title,price)
+            list.add(info)
         }
         return list
     }
