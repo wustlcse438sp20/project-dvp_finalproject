@@ -19,18 +19,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        db = FirebaseFirestore.getInstance()
-
-        //test
-//        val city : HashMap<String, Any> = hashMapOf(
-//            "name" to "Los Angeles",
-//            "state" to "CA",
-//            "country" to "USA"
-//        )
-//
-//        db.collection("cities").document("LA").set(city)
-//        val intent = Intent(this, MapsActivity::class.java)
-////        startActivity(intent)
         val fragmentAdapter =
             MyPagerAdapter(
                 supportFragmentManager

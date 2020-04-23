@@ -64,3 +64,11 @@ data class GeojsonGeometry (
     val type : String,
     val coordinates : List<Int>
 )
+
+data class adapterData(
+    val address: String,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+    val id:String
+)
